@@ -3,6 +3,7 @@ package jack.hive;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -44,6 +45,7 @@ public class HiveDrawable extends Drawable {
 
         initPaint();
         initPath();
+        setColor(Color.RED);
     }
 
     private void ensurePaint() {
@@ -114,6 +116,7 @@ public class HiveDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
+        mPaint.setColor(Color.RED);
         canvas.drawPath(mPath, mPaint);
     }
 

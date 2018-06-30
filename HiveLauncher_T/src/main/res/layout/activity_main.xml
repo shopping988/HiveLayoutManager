@@ -5,7 +5,10 @@
     android:layout_height="match_parent"
     android:background="@drawable/default_wallpaper"
     >
-
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="10dp">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
@@ -15,12 +18,35 @@
 
     <FrameLayout
         android:id="@+id/time_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true">
     </FrameLayout>
 
+<LinearLayout
+    android:layout_alignParentRight="true"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_marginTop="16dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/tv_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/tv_weather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"/>
+    <TextView
+        android:id="@+id/tv_temp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/r_layout_user_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -28,31 +54,28 @@
 
         <ImageView
             android:id="@+id/iv_touxiang"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:paddingTop="6dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@drawable/man" />
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/iv_touxiang"
             android:layout_centerVertical="true"
+            android:paddingLeft="5dp"
             android:orientation="vertical">
             <TextView
                 android:layout_centerVertical="true"
                 android:id="@+id/tv_school"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"/>
-            <TextView
-                android:layout_centerVertical="true"
-                android:id="@+id/tv_grade"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                />
             <TextView
                 android:id="@+id/tv_name"
                 android:layout_width="wrap_content"
@@ -102,5 +125,5 @@
             />
 
     </LinearLayout>-->
-
+</RelativeLayout>
 </RelativeLayout>

@@ -21,24 +21,32 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amap.api.services.weather.LocalWeatherForecastResult;
+import com.amap.api.services.weather.LocalWeatherLive;
+import com.amap.api.services.weather.LocalWeatherLiveResult;
+import com.amap.api.services.weather.WeatherSearch;
+import com.amap.api.services.weather.WeatherSearchQuery;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+import jack.services.LocationService;
+
+public class MainActivity extends AppCompatActivity implements WeatherSearch.OnWeatherSearchListener {
 
     public static final int[] resIds = new int[]{
             R.drawable.img_smartclass
             , R.drawable.img_1
             , R.drawable.img_k12cloud
-            , R.drawable.img_dict
+            , R.drawable.img_tools
             , R.drawable.img_4
             , R.drawable.img_apps
             , R.drawable.img_classschedule
             , R.drawable.img_7
             , R.drawable.img_8
             , R.drawable.img_9
-            , R.drawable.img_protecteyes
+            , R.drawable.img_systemapps
             , R.drawable.img_11
             , R.drawable.img_12
             , R.drawable.img_12
@@ -66,9 +74,9 @@ public class MainActivity extends AppCompatActivity {
     String timeWidgetClassName = "com.android.alarmclock.DigitalAppWidgetProvider";
     String timeAppClassName = "com.android.deskclock.DeskClock";
 
-//    String timeWidgetClassName = "com.lu.weather.receiver.AppWidgetProvider_5x2";
-//    String timePackageName = "com.lu.ashionweather";
-//    String timeAppClassName = "com.lu.weather.activity.StartActivity";
+//    String timeWidgetClassName = "com.joe.holi.remote.widget.HoliWidget42Provider";
+//    String timePackageName = "com.joe.holi";
+//    String timeAppClassName = "com.joe.holi.ui.MainActivity";
     //private WidgetLayout mWidgetLayout;
     ComponentName timeWidgetComponentName = new ComponentName(timePackageName, timeWidgetClassName);
     ComponentName timeAppComponentName = new ComponentName(timePackageName, timeAppClassName);
@@ -82,37 +90,53 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     private HashMap<ComponentName, AppWidgetProviderInfo> mWidgetMap;
 
-    private static final String LOGIN_ACTION = "com.clovsoft.huayinghealth.student.LOGIN";
-    private static final String LOGOUT_ACTION = "com.clovsoft.huayinghealth.student.LOGOUT";
+    private static final String LOGIN_ACTION = "com.clovsoft.huayinghealth.teacher.LOGIN";
+    private static final String LOGOUT_ACTION = "com.clovsoft.huayinghealth.teacher.LOGOUT";
     private String schoolName = null;
-    private String gradeName  = null;
-    private String className  = null;
     private String userName   = null;
     private String userSex    = null;
 
     private ImageView iv_touxiang;
-    private TextView tv_name, tv_school, tv_grade;
+    private int userImageId;
+    private TextView tv_name,tv_school;
     private BroadcastReceiver logStateChange = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (LOGIN_ACTION.equals(intent.getAction())) {
                 schoolName = intent.getStringExtra("school_name");
-                gradeName  = intent.getStringExtra("grade_name");
-                className  = intent.getStringExtra("class_name");
                 userName   = intent.getStringExtra("user_name");
                 userSex    = intent.getStringExtra("user_sex");
+
+                String info = "shopping" + schoolName  + " " + userName + " " + userSex;
+                if (userSex.equals("1")) {
+                    //iv_touxiang.setImageDrawable(getResources().getDrawable(R.drawable.man));
+                    userImageId = R.drawable.man;
+                } else if (userSex.equals("0")) {
+                    //iv_touxiang.setImageDrawable(getResources().getDrawable(R.drawable.women));
+                    userImageId = R.drawable.women;
+                }
+                Toast.makeText(context, info, Toast.LENGTH_LONG).show();
             } else if (LOGOUT_ACTION.equals(intent.getAction())) {
                 schoolName = "";
-                gradeName  = "";
-                className  = "";
                 userName   = "";
                 userSex    = "";
+                userImageId = R.drawable.man;
             }
-            tv_school.setText(schoolName);
-            tv_grade.setText(gradeName+className);
+            iv_touxiang.setImageResource(userImageId);
             tv_name.setText(userName);
+            tv_school.setText(schoolName);
         }
     };
+
+
+    /**
+    天气
+     */
+    private WeatherSearchQuery mquery;
+    private WeatherSearch mweathersearch;
+    private LocalWeatherLive weatherlive;
+    private TextView tv_address,tv_weather,tv_temp;
+    private String address;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,25 +179,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        View dateHostView = appWidgetHost.createView(this, dateWidgetID, dateAppWidgetInfo);
-//        dateFrameLayout = (FrameLayout) findViewById(R.id.date_layout);
-//        dateFrameLayout.addView(dateHostView);
-//        dateFrameLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent();
-//                intent.setComponent(dateAppComponentName);
-//                intent.setAction("android.intent.action.MAIN");
-//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                startActivity(intent);
-//            }
-//        });
-
         IntentFilter logStateFilter = new IntentFilter();
         logStateFilter.addAction(LOGIN_ACTION);
         logStateFilter.addAction(LOGOUT_ACTION);
         context.registerReceiver(logStateChange, logStateFilter);
 
+
+
+        Intent service = new Intent(context, LocationService.class);
+        context.startService(service);
+
+
+        //天气
+        //检索参数为城市和天气类型，实况天气为WEATHER_TYPE_LIVE、天气预报为WEATHER_TYPE_FORECAST
+        mquery = new WeatherSearchQuery("北京", WeatherSearchQuery.WEATHER_TYPE_LIVE);
+        mweathersearch=new WeatherSearch(this);
+        mweathersearch.setOnWeatherSearchListener(this);
+        mweathersearch.setQuery(mquery);
+        mweathersearch.searchWeatherAsyn(); //异步搜索
     }
 
     private void initObjects() {
@@ -185,7 +208,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.list);
         tv_name = (TextView) findViewById(R.id.tv_name);
         tv_school = (TextView) findViewById(R.id.tv_school);
-        tv_grade = (TextView) findViewById(R.id.tv_grade);
+        iv_touxiang = (ImageView) findViewById(R.id.iv_touxiang);
+        userImageId = R.drawable.man;
+
+
+        tv_address = (TextView) findViewById(R.id.tv_address);
+        tv_weather = (TextView) findViewById(R.id.tv_weather);
+        tv_temp = (TextView) findViewById(R.id.tv_temp);
     }
 
     private int getRandomPosition() {
@@ -205,16 +234,6 @@ public class MainActivity extends AppCompatActivity {
             adapter.addData(resIds[i % resIds.length]);
         }
         layoutManager.setGravity(HiveLayoutManager.CENTER);
-//        layoutManager.setGravity(HiveLayoutManager.ALIGN_LEFT);
-//        layoutManager.setGravity(HiveLayoutManager.ALIGN_RIGHT);
-//        layoutManager.setGravity(HiveLayoutManager.ALIGN_TOP);
-//        layoutManager.setGravity(HiveLayoutManager.ALIGN_BOTTOM);
-//        layoutManager.setGravity(HiveLayoutManager.ALIGN_LEFT | HiveLayoutManager.ALIGN_TOP);
-//        layoutManager.setGravity(HiveLayoutManager.ALIGN_LEFT | HiveLayoutManager.ALIGN_BOTTOM);
-//        layoutManager.setGravity(HiveLayoutManager.ALIGN_RIGHT | HiveLayoutManager.ALIGN_TOP);
-//        layoutManager.setGravity(HiveLayoutManager.ALIGN_RIGHT | HiveLayoutManager.ALIGN_BOTTOM);
-//        layoutManager.setPadding(300, 400, 500, 600);
-
     }
 
     private AppWidgetProviderInfo findAppWidgetProviderInfo(ComponentName component) {
@@ -236,5 +255,32 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onWeatherLiveSearched(LocalWeatherLiveResult weatherLiveResult, int rCode) {
+        if (rCode == 1000) {
+            if (weatherLiveResult != null&&weatherLiveResult.getLiveResult() != null) {
+                weatherlive = weatherLiveResult.getLiveResult();
+                /*reporttime1.setText(weatherlive.getReportTime()+"发布");
+                weather.setText(weatherlive.getWeather());
+                Temperature.setText(weatherlive.getTemperature()+"°");
+                wind.setText(weatherlive.getWindDirection()+"风     "+weatherlive.getWindPower()+"级");
+                humidity.setText("湿度         "+weatherlive.getHumidity()+"%");*/
+                tv_address.setText("北京");
+                tv_weather.setText(weatherlive.getWeather());
+                tv_temp.setText(weatherlive.getTemperature()+"°");
+                Toast.makeText(context, weatherlive.getTemperature()+"°",Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(context, "weatherLiveResult is null",Toast.LENGTH_SHORT).show();
+            }
+        }else {
+            Toast.makeText(context, "code = "+rCode,Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onWeatherForecastSearched(LocalWeatherForecastResult localWeatherForecastResult, int i) {
+
     }
 }

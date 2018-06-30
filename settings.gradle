@@ -1,1 +1,1 @@
-include ':app', ':hivelayoutmanager-library'
+include ':app',':HiveLauncher_T', ':hivelayoutmanager-library'

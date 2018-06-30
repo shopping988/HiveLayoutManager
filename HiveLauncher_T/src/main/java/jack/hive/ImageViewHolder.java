@@ -16,20 +16,20 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
 
     ImageView imageView;
     TextView textView ;
-    Context context;
+    MainActivity context;
 
 
     String[][] appName = {
-            {"com.huayinghealth.protecteyes", "com.huayinghealth.protecteyes.MainActivity"},
-            {"com.hewei.DictORWordHD", "com.hewei.DictORWordHD.view.LoadingAcitivity"},
-            {"cn.k12cloud.k12cloud2cv3.yibin", "cn.k12cloud.k12cloud2cv3.activity.LauncherActivity_"},
-            {"com.clovsoft.huayinghealth.student", "com.clovsoft.smartclass.student.MainActivity"},
-            {"com.hy.toolbox", "com.hy.toolbox.activity.LaunchAPPActivity"},
+            {"com.hy.teacher.systemapps", "com.hy.teacher.systemapps.activity.LaunchAPPActivity"},
+            {"com.hy.teacher.tools", "com.hy.teacher.tools.activity.LaunchAPPActivity"},
+            {"cn.k12cloud.k12cloud2bv3.yibin", "cn.k12cloud.k12cloud2bv3.activity.LauncherActivity_"},
+            {"com.clovsoft.huayinghealth.teacher", "com.clovsoft.smartclass.teacher.MainActivity"},
+            {"com.hy.teacher.apps", "com.hy.teacher.apps.activity.LaunchAPPActivity"},
             {"com.application.classschedule", "com.application.classschedule.MainActivity"},
             {"com.android.settings", "com.android.settings.Settings"}
     };
 
-    public ImageViewHolder(View itemView, Context context) {
+    public ImageViewHolder(View itemView, MainActivity context) {
         super(itemView);
         imageView = (ImageView) itemView.findViewById(R.id.img_img);
         textView = (TextView) itemView.findViewById(R.id.number);
@@ -77,6 +77,7 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
                 intent.setAction("android.intent.action.MAIN");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
+                context.overridePendingTransition(R.anim.window_in,R.anim.window_out);
             }
         });
 

@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "24.0.2"
+
+    defaultConfig {
+        applicationId "jack.hive"
+        minSdkVersion 19
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+
+    signingConfigs {
+        release {
+            storeFile file("../launcher.jks")
+            keyAlias "huaying"
+            keyPassword "123456"
+            storePassword "123456"
+        }
+        debug {
+            storeFile file("../launcher.jks")
+            keyAlias "huaying"
+            keyPassword "123456"
+            storePassword "123456"
+        }
+    }
+
+    android {
+        applicationVariants.all { variant ->
+            variant.outputs.each { output ->
+                def outputFile = output.outputFile
+                if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                    File outputDirectory = new File(outputFile.parent)
+                    if (variant.buildType.name == "release") {
+                        def fileName = "HiveLauncher_T_vn${defaultConfig.versionName}_vc${defaultConfig.versionCode}_release.apk"
+                        output.outputFile = new File(outputDirectory, fileName)
+                        //                       def fileName = "slzx_vn${defaultConfig.versionName}_vc${defaultConfig.versionCode}_${releaseTime()}_release.apk"
+                    }
+                    /*if (variant.buildType.name == "debug") {
+                        def fileName = "protect_eyes_vn${defaultConfig.versionName}_vc${defaultConfig.versionCode}_debug.apk"
+                        output.outputFile = new File(outputDirectory, fileName)
+                        //                       def fileName = "slzx_vn${defaultConfig.versionName}_vc${defaultConfig.versionCode}_${releaseTime()}_release.apk"
+                    }*/
+                }
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
+            minifyEnabled false//是否混淆
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile project(':hivelayoutmanager-library')
+    compile 'com.android.support:appcompat-v7:24.2.0'
+//    compile 'com.github.chacojack:hivelayoutmanager:1.0.3'
+
+    compile files('libs/AMap2DMap_5.2.0_AMapSearch_6.1.0_20180330.jar')
+    compile files('libs/AMap_Location_V4.0.1_20180426.jar')
+
+}
