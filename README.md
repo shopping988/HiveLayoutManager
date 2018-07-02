@@ -1,5 +1,7 @@
 # HiveLayoutManager
 六边形 Launcher
-![image](https://github.com/shopping988/HiveLayoutManager/blob/master/readme/diagram1.png)
+#![image](https://github.com/shopping988/HiveLayoutManager/blob/master/readme/diagram1.png)
 
-![image](https://github.com/shopping988/HiveLayoutManager/blob/master/readme/diagram2.png)
+#![image](https://github.com/shopping988/HiveLayoutManager/blob/master/readme/diagram2.png)
+
+![image](https://github.com/shopping988/HiveLayoutManager/blob/master/readme/diagram3.png)
