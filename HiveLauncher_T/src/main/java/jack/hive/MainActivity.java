@@ -27,11 +27,18 @@ import com.amap.api.services.weather.LocalWeatherLiveResult;
 import com.amap.api.services.weather.WeatherSearch;
 import com.amap.api.services.weather.WeatherSearchQuery;
 
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import jack.services.LocationService;
+import jack.utils.Constant;
+import jack.utils.SystemShare;
+
+import static jack.hive.R.id.iv_weather;
 
 public class MainActivity extends AppCompatActivity implements WeatherSearch.OnWeatherSearchListener {
 
@@ -137,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements WeatherSearch.OnW
     private LocalWeatherLive weatherlive;
     private TextView tv_address,tv_weather,tv_temp;
     private String address;
+    private ImageView iv_weather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,11 +200,15 @@ public class MainActivity extends AppCompatActivity implements WeatherSearch.OnW
 
         //天气
         //检索参数为城市和天气类型，实况天气为WEATHER_TYPE_LIVE、天气预报为WEATHER_TYPE_FORECAST
-        mquery = new WeatherSearchQuery("北京", WeatherSearchQuery.WEATHER_TYPE_LIVE);
         mweathersearch=new WeatherSearch(this);
         mweathersearch.setOnWeatherSearchListener(this);
-        mweathersearch.setQuery(mquery);
-        mweathersearch.searchWeatherAsyn(); //异步搜索
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateWeather();
     }
 
     private void initObjects() {
@@ -215,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements WeatherSearch.OnW
         tv_address = (TextView) findViewById(R.id.tv_address);
         tv_weather = (TextView) findViewById(R.id.tv_weather);
         tv_temp = (TextView) findViewById(R.id.tv_temp);
+        iv_weather = (ImageView) findViewById(R.id.iv_weather);
     }
 
     private int getRandomPosition() {
@@ -256,7 +269,38 @@ public class MainActivity extends AppCompatActivity implements WeatherSearch.OnW
         }
         return super.onKeyDown(keyCode, event);
     }
+    //定时器更新天气
+    Timer timer = new Timer();
+    private static int period = 60 * 60 * 1000; //60分钟一次
+    private void updateWeather(){
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                address = SystemShare.getSettingString(context, Constant.Pad_address);
+                if (address!=null && !"".equals(address)) {
+                    //天气
+                    //检索参数为城市和天气类型，实况天气为WEATHER_TYPE_LIVE、天气预报为WEATHER_TYPE_FORECAST
+                    mquery = new WeatherSearchQuery(address, WeatherSearchQuery.WEATHER_TYPE_LIVE);
+                    mweathersearch.setQuery(mquery);
+                    mweathersearch.searchWeatherAsyn(); //异步搜索
+                }
+            }
+        },1000,period);
+    }
+    // 停止定时器
+    private void stopTimer(){
+        if(timer != null){
+            timer.cancel();
+            // 一定设置为null，否则定时器不会被回收
+            timer = null;
+        }
+    }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        stopTimer();
+    }
     @Override
     public void onWeatherLiveSearched(LocalWeatherLiveResult weatherLiveResult, int rCode) {
         if (rCode == 1000) {
@@ -267,9 +311,10 @@ public class MainActivity extends AppCompatActivity implements WeatherSearch.OnW
                 Temperature.setText(weatherlive.getTemperature()+"°");
                 wind.setText(weatherlive.getWindDirection()+"风     "+weatherlive.getWindPower()+"级");
                 humidity.setText("湿度         "+weatherlive.getHumidity()+"%");*/
-                tv_address.setText("北京");
+                tv_address.setText(address);
                 tv_weather.setText(weatherlive.getWeather());
                 tv_temp.setText(weatherlive.getTemperature()+"°");
+                setImg(weatherlive.getWeather());
                 Toast.makeText(context, weatherlive.getTemperature()+"°",Toast.LENGTH_SHORT).show();
             }else {
                 Toast.makeText(context, "weatherLiveResult is null",Toast.LENGTH_SHORT).show();
@@ -282,5 +327,62 @@ public class MainActivity extends AppCompatActivity implements WeatherSearch.OnW
     @Override
     public void onWeatherForecastSearched(LocalWeatherForecastResult localWeatherForecastResult, int i) {
 
+    }
+
+    private  void setImg(String weather){
+        //iv_weather.setBackgroundResource(R.mipmap.iv_weather_qing);
+        if (weather != null && "".equals(weather)){
+            if (weather.contains(getString(R.string.daxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weaher_daxue);
+            }else if (weather.contains(getString(R.string.baoxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_baoxue);
+            }else if (weather.contains(getString(R.string.baoyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_baoyu);
+            }else if (weather.contains(getString(R.string.bingbao))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_bingbao);
+            }else if (weather.contains(getString(R.string.dabaoyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_dabaoyu);
+            }else if (weather.contains(getString(R.string.dayu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_dayu);
+            }else if (weather.contains(getString(R.string.dongyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_dongyu);
+            }else if (weather.contains(getString(R.string.duoyun))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_duoyun);
+            }else if (weather.contains(getString(R.string.fuchen))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_fuchen);
+            }else if (weather.contains(getString(R.string.leizhenyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_leizhenyu);
+            }else if (weather.contains(getString(R.string.mai))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_mai);
+            }else if (weather.contains(getString(R.string.qiangshachengbao))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_qiangshachengbao);
+            }else if (weather.contains(getString(R.string.qing))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_qing);
+            }else if (weather.contains(getString(R.string.shachenbao))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_shachenbao);
+            }else if (weather.contains(getString(R.string.tedabaoyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_tedabaoyu);
+            }else if (weather.contains(getString(R.string.wu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_wu);
+            }else if (weather.contains(getString(R.string.xiaoxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_xiaoxue);
+            }else if (weather.contains(getString(R.string.xiaoyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_xiaoyu);
+            }else if (weather.contains(getString(R.string.yangsha))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_yangsha);
+            }else if (weather.contains(getString(R.string.ying))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_ying);
+            }else if (weather.contains(getString(R.string.yujiaxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_yujiaxue);
+            }else if (weather.contains(getString(R.string.zhenxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_zhenxue);
+            }else if (weather.contains(getString(R.string.zhenyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_zhenyu);
+            }else if (weather.contains(getString(R.string.zhongxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_zhongxue);
+            }else if (weather.contains(getString(R.string.zhongyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_zhongyu);
+            }
+        }
     }
 }

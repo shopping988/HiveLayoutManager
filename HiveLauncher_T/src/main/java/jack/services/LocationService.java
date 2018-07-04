@@ -24,8 +24,10 @@ import java.net.URLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import jack.utils.Constant;
 import jack.utils.DateUtil;
 import jack.utils.NetUtil;
+import jack.utils.SystemShare;
 
 /**
  * Created by ChanLin on 2018/6/11.
@@ -56,6 +58,7 @@ public class LocationService extends Service implements AMapLocationListener {
                     latitude = aMapLocation.getLatitude();
                     longitude = aMapLocation.getLongitude();
                     address = aMapLocation.getAddress();
+                    SystemShare.setSettingString(getApplicationContext(), Constant.Pad_address,aMapLocation.getCity());
                     Log.e("locationservice",longitude+"\t"+latitude+"\t"+address);
                 }else {
                     //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。

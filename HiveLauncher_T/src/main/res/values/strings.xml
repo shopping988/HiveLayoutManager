@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">HiveLayoutManager</string>
+    <string name="qing">Чч</string>
+    <string name="qiangshachengbao">ЧПЩГГОБЉ</string>
+    <string name="yangsha">бяЩГ</string>
+    <string name="shachenbao">ЩГГОБЉ</string>
+    <string name="fuchen">ИЁГО</string>
+    <string name="zhongyu">жагъ</string>
+    <string name="zhongxue">жабЉ</string>
+    <string name="dongyu">ЖГгъ</string>
+    <string name="duoyun">ЖрдЦ</string>
+    <string name="dabaoyu">ДѓБЉгъ</string>
+    <string name="dayu">Дѓгъ</string>
+    <string name="daxue">ДѓбЉ</string>
+    <string name="xiaoyu">АзЬь_аЁгъ</string>
+    <string name="xiaoxue">аЁбЉ</string>
+    <string name="baoyu">БЉгъ</string>
+    <string name="baoxue">БЉбЉ</string>
+    <string name="tedabaoyu">ЬиДѓБЉгъ</string>
+    <string name="ying">вѕ</string>
+    <string name="zhenyu">еѓгъ</string>
+    <string name="zhenxue">еѓбЉ</string>
+    <string name="yujiaxue">гъМабЉ</string>
+    <string name="leizhenyu">гъМабЉ</string>
+    <string name="bingbao">БљБЂ</string>
+    <string name="wu">Юэ</string>
+    <string name="mai">іВ</string>
+
 </resources>
