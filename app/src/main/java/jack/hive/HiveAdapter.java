@@ -16,9 +16,9 @@ public class HiveAdapter extends RecyclerView.Adapter<ImageViewHolder>{
 
 
     List<Integer> resId = new ArrayList<>() ;
-    Context context;
+    MainActivity context;
 
-    HiveAdapter(Context context) {
+    HiveAdapter(MainActivity context) {
         this.context = context;
     }
 

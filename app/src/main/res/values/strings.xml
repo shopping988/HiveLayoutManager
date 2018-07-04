@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">HiveLayoutManager</string>
+    <string name="qing">晴</string>
+    <string name="qiangshachengbao">强沙尘暴</string>
+    <string name="yangsha">扬沙</string>
+    <string name="shachenbao">沙尘暴</string>
+    <string name="fuchen">浮尘</string>
+    <string name="zhongyu">中雨</string>
+    <string name="zhongxue">中雪</string>
+    <string name="dongyu">冻雨</string>
+    <string name="duoyun">多云</string>
+    <string name="dabaoyu">大暴雨</string>
+    <string name="dayu">大雨</string>
+    <string name="daxue">大雪</string>
+    <string name="xiaoyu">白天_小雨</string>
+    <string name="xiaoxue">小雪</string>
+    <string name="baoyu">暴雨</string>
+    <string name="baoxue">暴雪</string>
+    <string name="tedabaoyu">特大暴雨</string>
+    <string name="ying">阴</string>
+    <string name="zhenyu">阵雨</string>
+    <string name="zhenxue">阵雪</string>
+    <string name="yujiaxue">雨夹雪</string>
+    <string name="leizhenyu">雨夹雪</string>
+    <string name="bingbao">冰雹</string>
+    <string name="wu">雾</string>
+    <string name="mai">霾</string>
+
 </resources>

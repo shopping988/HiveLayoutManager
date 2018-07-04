@@ -21,11 +21,26 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amap.api.services.weather.LocalWeatherForecastResult;
+import com.amap.api.services.weather.LocalWeatherLive;
+import com.amap.api.services.weather.LocalWeatherLiveResult;
+import com.amap.api.services.weather.WeatherSearch;
+import com.amap.api.services.weather.WeatherSearchQuery;
+
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+import jack.services.LocationService;
+import jack.utils.Constant;
+import jack.utils.SystemShare;
+
+import static jack.hive.R.id.iv_weather;
+
+public class MainActivity extends AppCompatActivity implements WeatherSearch.OnWeatherSearchListener {
 
     public static final int[] resIds = new int[]{
             R.drawable.img_smartclass
@@ -91,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private String userSex    = null;
 
     private ImageView iv_touxiang;
+    private int userImageId;
     private TextView tv_name, tv_school, tv_grade;
     private BroadcastReceiver logStateChange = new BroadcastReceiver() {
         @Override
@@ -107,12 +123,25 @@ public class MainActivity extends AppCompatActivity {
                 className  = "";
                 userName   = "";
                 userSex    = "";
+                userImageId = R.drawable.man;
             }
+            iv_touxiang.setImageResource(userImageId);
             tv_school.setText(schoolName);
             tv_grade.setText(gradeName+className);
             tv_name.setText(userName);
         }
     };
+
+
+    /**
+    天气
+     */
+    private WeatherSearchQuery mquery;
+    private WeatherSearch mweathersearch;
+    private LocalWeatherLive weatherlive;
+    private TextView tv_address,tv_weather,tv_temp;
+    private String address;
+    private ImageView iv_weather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +203,23 @@ public class MainActivity extends AppCompatActivity {
         logStateFilter.addAction(LOGOUT_ACTION);
         context.registerReceiver(logStateChange, logStateFilter);
 
+
+
+        Intent service = new Intent(context, LocationService.class);
+        context.startService(service);
+
+
+        //天气
+        //检索参数为城市和天气类型，实况天气为WEATHER_TYPE_LIVE、天气预报为WEATHER_TYPE_FORECAST
+        mweathersearch=new WeatherSearch(this);
+        mweathersearch.setOnWeatherSearchListener(this);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateWeather();
     }
 
     private void initObjects() {
@@ -186,6 +232,14 @@ public class MainActivity extends AppCompatActivity {
         tv_name = (TextView) findViewById(R.id.tv_name);
         tv_school = (TextView) findViewById(R.id.tv_school);
         tv_grade = (TextView) findViewById(R.id.tv_grade);
+        iv_touxiang = (ImageView) findViewById(R.id.iv_touxiang);
+        userImageId = R.drawable.man;
+		
+        tv_address = (TextView) findViewById(R.id.tv_address);
+        tv_weather = (TextView) findViewById(R.id.tv_weather);
+        tv_temp = (TextView) findViewById(R.id.tv_temp);
+        iv_weather = (ImageView) findViewById(R.id.iv_weather);
+        
     }
 
     private int getRandomPosition() {
@@ -236,5 +290,121 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+    //定时器更新天气
+    Timer timer = new Timer();
+    private static int period = 60 * 60 * 1000; //60分钟一次
+    private void updateWeather(){
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                address = SystemShare.getSettingString(context, Constant.Pad_address);
+                if (address!=null && !"".equals(address)) {
+                    //天气
+                    //检索参数为城市和天气类型，实况天气为WEATHER_TYPE_LIVE、天气预报为WEATHER_TYPE_FORECAST
+                    mquery = new WeatherSearchQuery(address, WeatherSearchQuery.WEATHER_TYPE_LIVE);
+                    mweathersearch.setQuery(mquery);
+                    mweathersearch.searchWeatherAsyn(); //异步搜索
+                }
+            }
+        },1000,period);
+    }
+    // 停止定时器
+    private void stopTimer(){
+        if(timer != null){
+            timer.cancel();
+            // 一定设置为null，否则定时器不会被回收
+            timer = null;
+        }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        stopTimer();
+    }
+    @Override
+    public void onWeatherLiveSearched(LocalWeatherLiveResult weatherLiveResult, int rCode) {
+        if (rCode == 1000) {
+            if (weatherLiveResult != null&&weatherLiveResult.getLiveResult() != null) {
+                weatherlive = weatherLiveResult.getLiveResult();
+                /*reporttime1.setText(weatherlive.getReportTime()+"发布");
+                weather.setText(weatherlive.getWeather());
+                Temperature.setText(weatherlive.getTemperature()+"°");
+                wind.setText(weatherlive.getWindDirection()+"风     "+weatherlive.getWindPower()+"级");
+                humidity.setText("湿度         "+weatherlive.getHumidity()+"%");*/
+                tv_address.setText(address);
+                tv_weather.setText(weatherlive.getWeather());
+                tv_temp.setText(weatherlive.getTemperature()+"°");
+                setImg(weatherlive.getWeather());
+                Toast.makeText(context, weatherlive.getTemperature()+"°",Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(context, "weatherLiveResult is null",Toast.LENGTH_SHORT).show();
+            }
+        }else {
+            Toast.makeText(context, "code = "+rCode,Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onWeatherForecastSearched(LocalWeatherForecastResult localWeatherForecastResult, int i) {
+
+    }
+
+    private  void setImg(String weather){
+        //iv_weather.setBackgroundResource(R.mipmap.iv_weather_qing);
+        if (weather != null && "".equals(weather)){
+            if (weather.contains(getString(R.string.daxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weaher_daxue);
+            }else if (weather.contains(getString(R.string.baoxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_baoxue);
+            }else if (weather.contains(getString(R.string.baoyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_baoyu);
+            }else if (weather.contains(getString(R.string.bingbao))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_bingbao);
+            }else if (weather.contains(getString(R.string.dabaoyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_dabaoyu);
+            }else if (weather.contains(getString(R.string.dayu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_dayu);
+            }else if (weather.contains(getString(R.string.dongyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_dongyu);
+            }else if (weather.contains(getString(R.string.duoyun))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_duoyun);
+            }else if (weather.contains(getString(R.string.fuchen))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_fuchen);
+            }else if (weather.contains(getString(R.string.leizhenyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_leizhenyu);
+            }else if (weather.contains(getString(R.string.mai))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_mai);
+            }else if (weather.contains(getString(R.string.qiangshachengbao))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_qiangshachengbao);
+            }else if (weather.contains(getString(R.string.qing))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_qing);
+            }else if (weather.contains(getString(R.string.shachenbao))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_shachenbao);
+            }else if (weather.contains(getString(R.string.tedabaoyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_tedabaoyu);
+            }else if (weather.contains(getString(R.string.wu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_wu);
+            }else if (weather.contains(getString(R.string.xiaoxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_xiaoxue);
+            }else if (weather.contains(getString(R.string.xiaoyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_xiaoyu);
+            }else if (weather.contains(getString(R.string.yangsha))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_yangsha);
+            }else if (weather.contains(getString(R.string.ying))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_ying);
+            }else if (weather.contains(getString(R.string.yujiaxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_yujiaxue);
+            }else if (weather.contains(getString(R.string.zhenxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_zhenxue);
+            }else if (weather.contains(getString(R.string.zhenyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_zhenyu);
+            }else if (weather.contains(getString(R.string.zhongxue))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_zhongxue);
+            }else if (weather.contains(getString(R.string.zhongyu))){
+                iv_weather.setBackgroundResource(R.mipmap.iv_weather_zhongyu);
+            }
+        }
     }
 }

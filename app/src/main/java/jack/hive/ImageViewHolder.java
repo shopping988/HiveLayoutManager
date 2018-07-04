@@ -16,7 +16,7 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
 
     ImageView imageView;
     TextView textView ;
-    Context context;
+    MainActivity context;
 
 
     String[][] appName = {
@@ -29,7 +29,7 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
             {"com.android.settings", "com.android.settings.Settings"}
     };
 
-    public ImageViewHolder(View itemView, Context context) {
+    public ImageViewHolder(View itemView, MainActivity context) {
         super(itemView);
         imageView = (ImageView) itemView.findViewById(R.id.img_img);
         textView = (TextView) itemView.findViewById(R.id.number);
@@ -77,6 +77,7 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
                 intent.setAction("android.intent.action.MAIN");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
+                context.overridePendingTransition(R.anim.window_in,R.anim.window_out);
             }
         });
 
